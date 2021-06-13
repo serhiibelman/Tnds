@@ -20,7 +20,7 @@ class Tnds:
         self.n = self.get_col(2)
         self.D = self.get_col(3)
         self.S = self.get_col(4)
-        self.PX = self.get_col(5)
+        self.Px = self.get_col(5)
         self.Py = self.get_col(6)
         self.Pz = self.get_col(7)
 
@@ -31,7 +31,8 @@ class Tnds:
         return self.sheet.col_values(
                 col_n, start_rowx=self.start, end_rowx=self.end
             )
-    
+
+    @property
     def permutations(self):
         """
         Find all permutations for Tnds atributes
@@ -44,12 +45,24 @@ class Tnds:
             [n, D], [n, S], [D, S],
             [T, t, n], [T, t, D], [T, t, S],
             [T, n, D], [T, n, S], [T, D, S],
-            [t, n, D], [t, n, S], [t, D, S],
+            [t, n, D], [t, n, S], [t, D, S], [n, D, S],
             [T, t, n, D], [T, t, n, S], [T, n, D, S],
             [t, n, D, S], [T, t, D, S], [T, t, n, D, S]
         ]
-        
-            
+    
+    @property
+    def permutations_str(self):
+        return [
+            'T', 't', 'n', 'D', 'S',
+            'Tt', 'Tn', 'TD', 'TS',
+            'tn', 'tD', 'tS',
+            'nD', 'nS', 'DS',
+            'Ttn', 'TtD', 'TtS',
+            'TnD', 'TnS', 'TDS',
+            'tnD', 'tnS', 'tDS', 'nDS',
+            'TtnD', 'TtnS', 'TnDS',
+            'tnDS', 'TtDS', 'TtnDS'
+        ]
 
 
 class P_equation:
@@ -136,25 +149,64 @@ class P_equation:
         return f'{eq_str} = P'
 
 
-def find_min_delta(permutations):
+def find_min_delta(tnds, p):
     """
     Find men delta for all permutations
     """
-    return
+    deltas = {}
+    for i, x in enumerate(tnds.permutations):
+        p.x = x
+        deltas[i] = p.delta()
+    min_delta = min(deltas, key=deltas.get)
+    return [tnds.permutations_str[min_delta], deltas[min_delta], min_delta]
+
+
+def find_equation(tnds, Px):
+    min_delta = None
+    last_delta = []
+    p = P_equation(P=Px)
+    permutations = tnds.permutations
+    for k in range(len(permutations)):
+        if last_delta:
+            if last_delta[0] in p.__dict__.keys():
+                continue
+            p.__setattr__(last_delta[0], permutations[last_delta[2]])
+        last_delta = find_min_delta(tnds, p)
+        if min_delta is not None and last_delta[1] > min_delta:
+            break
+        min_delta = last_delta[1]
+        # print('k', k, '-', last_delta)
+    p.N -= 1
+    delattr(p, 'x')
+    return p
+
+
+def run():
+    tnds = Tnds()
+    check = Tnds(check=True)
+    eq = find_equation(tnds, tnds.Px)
+    print('Рівняння для Px:', eq)
+    eq = find_equation(tnds, tnds.Py)
+    print('Рівняння для Py:', eq)
+    eq = find_equation(tnds, tnds.Pz)
+    print('Рівняння для Pz:', eq)
+
 
 
 if __name__ == '__main__':
-    tnds = Tnds()
-    check = Tnds(check=True)
-    Px = tnds.PX
-    p = P_equation(P=Px)
-    p.T = tnds.T
-    p.t = tnds.t
-    p.__setattr__('D', tnds.D)
-    p.__setattr__('S', tnds.S)
-    p.__setattr__('DS', [tnds.D, tnds.S])
-    # dd = sum_products(p.DS, p.T)
-    # print('DD:', dd)
-    p._create_matrix()
-    print(p.delta()) 
-    print(p)
+    # tnds = Tnds()
+    # check = Tnds(check=True)
+    # Px = tnds.PX
+    # p = P_equation(P=Px)
+    # p.T = tnds.T
+    # p.t = tnds.t
+    # p.__setattr__('D', tnds.D)
+    # p.__setattr__('S', tnds.S)
+    # p.__setattr__('DS', [tnds.D, tnds.S])
+    # # dd = sum_products(p.DS, p.T)
+    # # print('DD:', dd)
+    # p._create_matrix()
+    # print(p.delta()) 
+    # print(p)
+
+    run()

@@ -49,7 +49,7 @@ class Tnds:
             [T, t, n, D], [T, t, n, S], [T, n, D, S],
             [t, n, D, S], [T, t, D, S], [T, t, n, D, S]
         ]
-    
+
     @property
     def permutations_str(self):
         return [

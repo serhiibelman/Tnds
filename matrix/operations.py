@@ -3,9 +3,9 @@ def decompose_list(A, decomposed):
     """
     Make decomposed list from A
     :decomposed: empty list []
-    :A: matrix or list of lists 
+    :A: matrix or list of lists
         [[[1, 2, 3], [4, 5, 6]], [7, 8, 9]]
-    :return: list of 1 demension arrays 
+    :return: list of 1 demension arrays
         [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
     for sub in A:

@@ -81,7 +81,7 @@ class P_equation:
             if 'N' in dc:
                 self.__dict__['N'] += 1
         super().__setattr__(name, value)
-    
+
     @property
     def equation_args(self):
         """
